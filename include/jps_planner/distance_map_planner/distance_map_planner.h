@@ -21,6 +21,9 @@ public:
    */
   DMPlanner(bool verbose = false);
 
+  /// Set map util for collistion checking
+  void setMapUtil(const std::shared_ptr<JPS::MapUtil<Dim>> &map_util);
+
   /**
    * @brief set a prior path and get region around it
    * @param path prior path
@@ -34,17 +37,11 @@ public:
   std::vector<bool> setPath(const vec_Vecf<Dim> &path, const Vecf<Dim>& radius,
                             bool dense);
 
-  /// Set search radius around a prior path
   void setSearchRadius(const Vecf<Dim>& r);
-  /// Set potential radius
   void setPotentialRadius(const Vecf<Dim>& r);
-  /// Set the range of potential map, 0 means the whole map
   void setPotentialMapRange(const Vecf<Dim>& r);
-  /// Set heuristic weight
   void setEps(double eps);
-  /// Set collision cost weight
   void setCweight(double c);
-  /// Set the power of potential function \f$H_{MAX}(1 - d/d_{max})^{pow}\f$
   void setPow(int pow);
 
   /**
@@ -59,8 +56,6 @@ public:
   vec_Vecf<Dim> getPath();
   /// Get the raw path
   vec_Vecf<Dim> getRawPath();
-  /// Get the prior path
-  vec_Vecf<Dim> getPriorPath();
   /// Get the nodes in open set
   vec_Vecf<Dim> getOpenSet() const;
   /// Get the nodes in close set
@@ -71,28 +66,25 @@ public:
   vec_Vec3f getCloud(double h_max = 1);
   /// Get the searching region
   vec_Vecf<Dim> getSearchRegion();
-  /// Get the internal map util
-  std::shared_ptr<JPS::MapUtil<Dim>> getMapUtil();
 
+  /// Must be called before run the planning thread
+  void updateMap();
+  /// Create the mask for potential distance field
+  void createMask(int pow);
   /**
    * @brief Generate distance map
-   * @param map_util MapUtil that contains the map object
    * @param pos center of the distance map
-   *
-   * it copies the map object, thus change the original map_uitl won't affect
-   * the internal map.
+   * @param range the range for local distance map, if range is zero, do global generation
    */
-  void setMap(const std::shared_ptr<JPS::MapUtil<Dim>> &map_util,
-              const Vecf<Dim>& pos);
+  void updateDistanceMap(const Vecf<Dim>& pos, const Vecf<Dim>& range);
 
-  /// Compute the optimal path
-  bool computePath(const Vecf<Dim>& start, const Vecf<Dim>& goal, const vec_Vecf<Dim>& path);
-protected:
-  /// Create the mask for potential distance field
-  vec_E<std::pair<Veci<Dim>, int8_t>> createMask(int pow);
+
   /// Need to be specified in Child class, main planning function
   bool plan(const Vecf<Dim> &start, const Vecf<Dim> &goal,
             decimal_t eps = 1, decimal_t cweight = 0.1);
+
+  bool computePath(const Vecf<Dim>& start, const Vecf<Dim>& goal, const vec_Vecf<Dim>& path);
+protected:
   /// remove redundant points on the same line
   vec_Vecf<Dim> removeLinePts(const vec_Vecf<Dim> &path);
   /// Remove some corner waypoints
@@ -104,6 +96,8 @@ protected:
   std::shared_ptr<JPS::MapUtil<Dim>> map_util_;
   /// The planner back-end
   std::shared_ptr<DMP::GraphSearch> graph_search_;
+  /// Mask for generating potential field around obstacle
+  vec_E<std::pair<Veci<Dim>, int8_t>> mask_;
   /// tunnel for visualization
   std::vector<bool> search_region_;
   /// 1-D map array
@@ -111,10 +105,6 @@ protected:
 
   /// Enabled for printing info
   bool planner_verbose_;
-  /// Path cost (raw)
-  double path_cost_;
-  /// Prior path from planner
-  vec_Vecf<Dim> prior_path_;
   /// Raw path from planner
   vec_Vecf<Dim> raw_path_;
   /// Modified path for future usage
@@ -135,7 +125,6 @@ protected:
   Vecf<Dim> potential_map_range_{Vecf<Dim>::Zero()};
   /// power index for creating mask
   int pow_{1};
-
 };
 
 /// Planner for 2D OccMap
@@ -143,23 +132,5 @@ typedef DMPlanner<2> DMPlanner2D;
 
 /// Planner for 3D VoxelMap
 typedef DMPlanner<3> DMPlanner3D;
-
-
-template <int Dim> class IterativeDMPlanner : public DMPlanner<Dim> {
- public:
-  IterativeDMPlanner(bool verbose = false);
-
-  /// Iteratively compute the optimal path
-  bool iterativeComputePath(const Vecf<Dim> &start, const Vecf<Dim> &goal,
-                            const vec_Vecf<Dim> &path, int max_iteration);
-};
-
-/// Iterative Planner for 2D OccMap
-typedef IterativeDMPlanner<2> IterativeDMPlanner2D;
-
-/// Iterative Planner for 3D VoxelMap
-typedef IterativeDMPlanner<3> IterativeDMPlanner3D;
-
-
 
 #endif
