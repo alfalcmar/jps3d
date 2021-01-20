@@ -51,6 +51,8 @@ public:
   vec_Vecf<Dim> getCloseSet() const;
   /// Get all the nodes
   vec_Vecf<Dim> getAllSet() const;
+  /// Get binary occupancy state
+  bool isPointOccupied(const Vecf<Dim> &point);
 
 protected:
   /// Assume using 3D voxel map for all 2d and 3d planning

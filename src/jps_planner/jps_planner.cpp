@@ -294,6 +294,13 @@ bool JPSPlanner<Dim>::plan(const Vecf<Dim> &start, const Vecf<Dim> &goal, decima
   return true;
 }
 
+template <int Dim>
+bool JPSPlanner<Dim>::isPointOccupied(const Vecf<Dim> &point)
+{
+  const Veci<Dim> point_int = map_util_->floatToInt(point);
+  return map_util_->isOccupied(point_int);
+}
+
 template class JPSPlanner<2>;
 
 template class JPSPlanner<3>;
