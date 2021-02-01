@@ -44,7 +44,7 @@ public:
   /// Must be called before run the planning thread
   void updateMap();
   /// Planning function
-  bool plan(const Vecf<Dim> &start, const Vecf<Dim> &goal, decimal_t eps = 1, bool use_jps = true);
+  bool plan(const Vecf<Dim> &start, const Vecf<Dim> &goal, decimal_t eps = 1, bool use_jps = true, int expansion_limit = 0);
   /// Get the nodes in open set
   vec_Vecf<Dim> getOpenSet() const;
   /// Get the nodes in close set
