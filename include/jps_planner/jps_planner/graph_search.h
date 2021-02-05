@@ -174,7 +174,7 @@ namespace JPS
        * @param useJps if true, enable JPS search; else the planner is implementing A*
        * @param maxExpand maximum number of expansion allowed, optional, default is -1, means no limitation
        */
-      bool plan(int xStart, int yStart, int xGoal, int yGoal, bool useJps, int maxExpand = -1);
+      bool plan(int xStart, int yStart, int xGoal, int yGoal, bool useJps, int maxExpand = -1, bool plan_to_nearest = false);
       /**
        * @brief start 3D planning thread
        *
@@ -187,7 +187,7 @@ namespace JPS
        * @param useJps if true, enable JPS search; else the planner is implementing A*
        * @param maxExpand maximum number of expansion allowed, optional, default is -1, means no limitation
        */
-      bool plan(int xStart, int yStart, int zStart, int xGoal, int yGoal, int zGoal, bool useJps, int maxExpand = -1);
+      bool plan(int xStart, int yStart, int zStart, int xGoal, int yGoal, int zGoal, bool useJps, int maxExpand = -1, bool plan_to_nearest = false);
 
       /// Get the optimal path
       std::vector<StatePtr> getPath() const;
@@ -203,7 +203,7 @@ namespace JPS
 
     private:
       /// Main planning loop
-      bool plan(StatePtr& currNode_ptr, int max_expand, int start_id, int goal_id);
+      bool plan(StatePtr& currNode_ptr, int max_expand, int start_id, int goal_id, bool plan_to_nearest = false);
       /// Get successor function for A*
       void getSucc(const StatePtr& curr, std::vector<int>& succ_ids, std::vector<double>& succ_costs);
       /// Get successor function for JPS

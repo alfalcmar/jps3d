@@ -193,7 +193,7 @@ void JPSPlanner<Dim>::updateMap()
 }
 
 template <int Dim>
-bool JPSPlanner<Dim>::plan(const Vecf<Dim> &start, const Vecf<Dim> &goal, decimal_t eps, bool use_jps, int expansion_limit)
+bool JPSPlanner<Dim>::plan(const Vecf<Dim> &start, const Vecf<Dim> &goal, decimal_t eps, bool use_jps, int expansion_limit, bool plan_to_nearest)
 {
   if (planner_verbose_)
   {
@@ -250,12 +250,12 @@ bool JPSPlanner<Dim>::plan(const Vecf<Dim> &start, const Vecf<Dim> &goal, decima
   {
     graph_search_ =
         std::make_shared<JPS::GraphSearch>((map_util_->map_).data(), dim(0), dim(1), dim(2), eps, planner_verbose_);
-    graph_search_->plan(start_int(0), start_int(1), start_int(2), goal_int(0), goal_int(1), goal_int(2), use_jps, expansion_limit);
+    graph_search_->plan(start_int(0), start_int(1), start_int(2), goal_int(0), goal_int(1), goal_int(2), use_jps, expansion_limit, plan_to_nearest);
   }
   else
   {
     graph_search_ = std::make_shared<JPS::GraphSearch>(cmap_.data(), dim(0), dim(1), eps, planner_verbose_);
-    graph_search_->plan(start_int(0), start_int(1), goal_int(0), goal_int(1), use_jps, expansion_limit);
+    graph_search_->plan(start_int(0), start_int(1), goal_int(0), goal_int(1), use_jps, expansion_limit, plan_to_nearest);
   }
 
   const auto path = graph_search_->getPath();
